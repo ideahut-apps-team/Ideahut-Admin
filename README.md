@@ -60,7 +60,7 @@ Edit file [env.js](./src/scripts/env.js)
     web: "",
     api: "http://localhost:5402/_/api", // Base URL admin di backend
     ```
-    * Untuk mode development pakai setting ini.
+    * Untuk mode development pakai setting eksternal.
 * Internal
     ```js
     web: "/__admin__",
