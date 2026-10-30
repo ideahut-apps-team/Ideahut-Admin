@@ -318,9 +318,9 @@ export default {
         sortable: true,
       },
       {
-        name: 'type.classname',
+        name: 'jobType.classname',
         label: self.$t('label.class'),
-        field: 'type',
+        field: 'jobType',
         align: 'left',
         format: function (val) {
           if (val) {
@@ -346,9 +346,9 @@ export default {
         },
       },
       {
-        name: 'type.isRunning',
+        name: 'jobType.isRunning',
         label: self.$t('label.running'),
-        field: 'type',
+        field: 'jobType',
         align: 'center',
         sortable: true,
         format: (val) => {
@@ -395,7 +395,7 @@ export default {
         format: function (val) {
           return val && util.isNumber(val.startTime)
             ? util.format.date(val.startTime, { format: 'yyyy-MM-dd HH:mm:ss' })
-            : ''
+            : val?.startTime
         },
       },
       {
@@ -408,7 +408,7 @@ export default {
             ? util.format.date(val.previousFireTime, {
                 format: 'yyyy-MM-dd HH:mm:ss',
               })
-            : ''
+            : val?.previousFireTime
         },
       },
       {
@@ -421,7 +421,7 @@ export default {
             ? util.format.date(val.nextFireTime, {
                 format: 'yyyy-MM-dd HH:mm:ss',
               })
-            : ''
+            : val?.nextFireTime
         },
       },
       {
@@ -449,9 +449,9 @@ export default {
         align: 'left',
       },
       {
-        name: 'type',
+        name: 'jobType',
         label: self.$t('label.type'),
-        field: 'type',
+        field: 'jobType',
         align: 'left',
       },
       {
@@ -776,7 +776,7 @@ export default {
     on_view_click(scope) {
       delete scope.row.trigger
       let trigger = JSON.parse(JSON.stringify(scope.row))
-      delete trigger.type
+      delete trigger.jobType
       delete trigger.status
       scope.row.trigger = trigger
       uix.dialog.show(self.dialog.view, {

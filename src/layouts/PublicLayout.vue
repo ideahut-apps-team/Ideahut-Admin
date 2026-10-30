@@ -12,11 +12,16 @@
           flat
           no-caps
           no-wrap
-          :label="APP.title"
           :size="$q.screen.gt.sm ? 'xl' : 'lg'"
           :class="'q-pa-xs text-weight-bold ' + ($q.screen.gt.sm ? 'q-ml-md' : 'q-ml-xs')"
           @click="on_header_menu_click()"
         >
+          <q-avatar class="q-mr-xs" v-if="is_show_logo">
+            <img :src="APP.logo" alt="" @error="is_show_logo = false" />
+          </q-avatar>
+          <q-toolbar-title class="q-pa-none text-weight-bold">
+            {{ APP.title }}
+          </q-toolbar-title>
         </q-btn>
         <q-space />
         <q-btn
@@ -54,6 +59,7 @@ export default {
       api,
       uix,
       is_dark_mode: ref(false),
+      is_show_logo: ref(true),
     }
   },
   created() {

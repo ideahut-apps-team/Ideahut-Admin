@@ -3,8 +3,9 @@ const ENV = {
   __admin__: {
     id: '',
     title: '',
-    //web: "",
-    //api: "http://localhost:5402/_/api",
+    logo: '',
+    //web: '',
+    //api: 'http://localhost:5402/_/api',
     web: '/__admin__',
     api: '/_/api',
     timeout: 60,

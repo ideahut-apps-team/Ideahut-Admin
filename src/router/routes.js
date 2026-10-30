@@ -31,6 +31,10 @@ const routes = [
         component: () => import('pages/Cache.vue'),
       },
       {
+        path: '/lister',
+        component: () => import('pages/Lister.vue'),
+      },
+      {
         path: '/reload',
         component: () => import('pages/Reload.vue'),
       },

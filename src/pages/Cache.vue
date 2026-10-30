@@ -242,8 +242,8 @@ export default {
               return 0 === val ? self.$t('label.unlimited') : val
             }
             self.table.columns[3].format = (val) => {
-              return val?.value && val.value > 0
-                ? val.value + '  (' + val.unit + ')'
+              return val?.timeUnit && val?.value && val.value > 0
+                ? val.value + '  (' + val.timeUnit + ')'
                 : self.$t('label.never_expire')
             }
             self.table.rows = []

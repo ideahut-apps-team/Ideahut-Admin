@@ -107,6 +107,7 @@ export default {
     keys: 'Keys',
     kind: 'Kind',
     last_run_time: 'Last Run Time',
+    last_run_data: 'Last Run Data',
     last_sequence: 'Last Sequence',
     last_timestamp: 'Last Timestamp',
     lazy: 'Lazy',

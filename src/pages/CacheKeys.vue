@@ -71,6 +71,18 @@
             <q-tooltip>{{ $t('label.clear') }}</q-tooltip>
           </q-btn>
           <q-space />
+          <q-input
+            borderless
+            dense
+            v-model="table.filter"
+            @update:model-value="on_filter_changed"
+            class="q-ml-md"
+            :placeholder="$t('label.search')"
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
           <q-btn
             glossy
             round
@@ -205,11 +217,13 @@ export default {
       group: ref(null),
       table: ref({
         rows: [],
+        data: [],
         selected: [],
         columns: [],
         loading: false,
         deleting: false,
         clearing: false,
+        filter: null,
         pagination: {
           page: 1,
           rowsPerPage: 30,
@@ -263,11 +277,11 @@ export default {
           self.table.loading = false
         },
         onSuccess(page) {
-          self.table.rows = []
+          self.table.data = []
           if (util.isObject(page)) {
             if (util.isArray(page.data)) {
               for (const data of page.data) {
-                self.table.rows.push({
+                self.table.data.push({
                   key: data,
                 })
               }
@@ -277,6 +291,7 @@ export default {
             pagination.rowsPerPage = page.size
             pagination.rowsNumber = page.records
           }
+          self.on_filter_changed()
         },
       })
     },
@@ -285,6 +300,7 @@ export default {
      * REFRESH CLICK
      */
     on_refresh_click() {
+      self.table.filter = null
       self.do_request({
         pagination: self.table.pagination,
       })
@@ -295,35 +311,37 @@ export default {
      */
     on_delete_click() {
       if (self.table.selected?.length) {
-        let keys = []
-        for (const row of self.table.selected) {
-          keys.push(row.key)
-        }
-        let body = {
-          info: {
-            name: self.name,
-            group: self.group,
+        uix.confirm(
+          () => {
+            let keys = []
+            for (const row of self.table.selected) {
+              keys.push(row.key)
+            }
+            let body = {
+              info: {
+                name: self.name,
+                group: self.group,
+              },
+              keys: keys,
+            }
+            self.table.deleting = true
+            api.call({
+              path: '/cache/delete',
+              method: 'post',
+              data: body,
+              onFinish() {
+                self.table.deleting = false
+              },
+              onSuccess() {
+                self.do_request({
+                  pagination: self.table.pagination,
+                })
+              },
+            })
           },
-          keys: keys,
-        }
-        self.table.deleting = true
-        api.call({
-          path: '/cache/delete',
-          method: 'post',
-          data: body,
-          onSuccess() {
-            setTimeout(function () {
-              self.table.deleting = false
-              self.do_request({
-                pagination: self.table.pagination,
-              })
-            }, 500)
-          },
-          onError() {
-            self.table.deleting = false
-          },
-          notify: true,
-        })
+          'confirm.delete',
+          self.title,
+        )
       }
     },
 
@@ -332,7 +350,7 @@ export default {
      */
     on_clear_click() {
       uix.confirm(
-        function () {
+        () => {
           let body = {
             info: {
               name: self.name,
@@ -344,17 +362,13 @@ export default {
             path: '/cache/clear',
             method: 'post',
             data: body,
-            onSuccess() {
-              setTimeout(function () {
-                self.table.clearing = false
-                self.table.pagination.page = 1
-                self.on_refresh_click()
-              }, 500)
-            },
-            onError() {
+            onFinish() {
               self.table.clearing = false
             },
-            notify: true,
+            onSuccess() {
+              self.table.pagination.page = 1
+              self.on_refresh_click()
+            },
           })
         },
         'confirm.clear',
@@ -371,6 +385,19 @@ export default {
         self.do_request({
           pagination: self.table.pagination,
         })
+      }
+    },
+
+    /*
+     * FILTER CHANGED
+     */
+    on_filter_changed() {
+      if (util.isArray(self.table.data) && self.table.filter) {
+        self.table.rows = self.table.data.filter((row) =>
+          row.key.toLowerCase().includes(self.table.filter),
+        )
+      } else {
+        self.table.rows = self.table.data
       }
     },
   },
