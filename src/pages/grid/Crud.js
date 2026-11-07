@@ -408,6 +408,7 @@ const crud = {
             field: relation.target,
             condition: 'EQUAL',
             value: relation.value,
+            noJoin: relation.noJoin,
           })
         }
       }

@@ -195,6 +195,13 @@ export default {
         sortable: true,
       },
       {
+        name: 'isVirtualThread',
+        label: self.$t('label.virtual_thread'),
+        field: 'isVirtualThread',
+        align: 'center',
+        sortable: true,
+      },
+      {
         name: 'activeCount',
         label: self.$t('label.active_count'),
         field: 'activeCount',

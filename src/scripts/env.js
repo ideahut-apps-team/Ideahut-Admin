@@ -5,7 +5,7 @@ const ENV = {
     title: '',
     logo: '',
     //web: '',
-    //api: 'http://localhost:5402/_/api',
+    //api: 'http://localhost:5401/_/api',
     web: '/__admin__',
     api: '/_/api',
     timeout: 60,
