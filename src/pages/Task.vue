@@ -152,7 +152,6 @@ export default {
   setup() {
     return {
       util,
-
       columns: [],
       visibles: [],
       table: ref({
@@ -188,10 +187,10 @@ export default {
         sortable: true,
       },
       {
-        name: 'threadNamePrefix',
-        label: self.$t('label.thread_name_prefix'),
-        field: 'threadNamePrefix',
-        align: 'left',
+        name: 'isThreadPool',
+        label: self.$t('label.thread_pool'),
+        field: 'isThreadPool',
+        align: 'center',
         sortable: true,
       },
       {
@@ -199,6 +198,13 @@ export default {
         label: self.$t('label.virtual_thread'),
         field: 'isVirtualThread',
         align: 'center',
+        sortable: true,
+      },
+      {
+        name: 'maxConcurrency',
+        label: self.$t('label.max_concurrency'),
+        field: 'maxConcurrency',
+        align: 'right',
         sortable: true,
       },
       {
@@ -215,48 +221,6 @@ export default {
         align: 'right',
         sortable: true,
       },
-      {
-        name: 'queueCapacity',
-        label: self.$t('label.queue_capacity'),
-        field: 'queueCapacity',
-        align: 'right',
-        sortable: true,
-      },
-      {
-        name: 'poolSize',
-        label: self.$t('label.pool_size'),
-        field: 'poolSize',
-        align: 'right',
-        sortable: true,
-      },
-      {
-        name: 'maxPoolSize',
-        label: self.$t('label.max_pool_size'),
-        field: 'maxPoolSize',
-        align: 'right',
-        sortable: true,
-      },
-      {
-        name: 'corePoolSize',
-        label: self.$t('label.core_pool_size'),
-        field: 'corePoolSize',
-        align: 'right',
-        sortable: true,
-      },
-      {
-        name: 'keepAliveSeconds',
-        label: self.$t('label.keep_alive_seconds'),
-        field: 'keepAliveSeconds',
-        align: 'right',
-        sortable: true,
-      },
-      {
-        name: 'threadPriority',
-        label: self.$t('label.thread_priority'),
-        field: 'threadPriority',
-        align: 'right',
-        sortable: true,
-      },
     ]
     self.do_request()
   },
@@ -267,13 +231,13 @@ export default {
     do_request() {
       self.table.loading = true
       api.call({
-        path: '/task/infos',
+        path: '/task/handler/infos',
         onFinish() {
           self.table.loading = false
         },
         onSuccess(data, info) {
           self.table.rows = util.isArray(data) ? data : []
-          if (util.isArray(info.visibles)) {
+          if (util.isArray(info?.visibles)) {
             self.visibles = info.visibles
           } else {
             self.visibles = []
@@ -299,7 +263,7 @@ export default {
     get_view() {
       self.view.loading = true
       api.call({
-        path: '/task/info',
+        path: '/task/handler/properties',
         params: {
           handler: self.view.name,
         },
@@ -307,18 +271,14 @@ export default {
           self.view.loading = false
         },
         onSuccess(data) {
+          self.view.rows = []
           if (util.isObject(data)) {
-            self.view.rows = []
-            for (const col of self.columns) {
-              if (self.visibles.includes(col.name)) {
-                self.view.rows.push({
-                  label: col.label,
-                  value: data[col.field],
-                })
-              }
-            }
-          } else {
-            self.view.rows = []
+            Object.keys(data).forEach((key) => {
+              self.view.rows.push({
+                label: key,
+                value: data[key],
+              })
+            })
           }
         },
       })

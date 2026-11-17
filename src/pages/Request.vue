@@ -4,6 +4,7 @@
     class="table-sticky-header q-ma-sm"
     :rows="table.rows"
     :columns="table.columns"
+    :visible-columns="table.visibles"
     :loading="table.loading"
     :selection="'single'"
     :dense="$q.screen.lt.md"
@@ -241,11 +242,11 @@ export default {
     return {
       APP,
       util,
-
       table: ref({
         rows: [],
         filters: {},
         columns: [],
+        visibles: [],
         loading: false,
         pagination: {
           page: 1,
@@ -276,7 +277,7 @@ export default {
     self = this
     self.table.columns = [
       {
-        name: 'path',
+        name: 'patternValues',
         label: self.$t('label.path'),
         field: 'patternValues',
         align: 'left',
@@ -286,7 +287,7 @@ export default {
         },
       },
       {
-        name: 'method',
+        name: 'methods',
         label: self.$t('label.method'),
         field: 'methods',
         align: 'center',
@@ -310,7 +311,7 @@ export default {
         sortable: true,
       },
       {
-        name: 'bean',
+        name: 'handler.bean',
         label: self.$t('label.bean'),
         field: 'handler',
         align: 'left',
@@ -320,7 +321,7 @@ export default {
         },
       },
       {
-        name: 'function',
+        name: 'handler.function',
         label: self.$t('label.function'),
         field: 'handler',
         align: 'left',
@@ -353,23 +354,16 @@ export default {
         onFinish() {
           self.table.loading = false
         },
-        onSuccess(data) {
-          if (util.isObject(data)) {
-            self.table.rows = util.isArray(data.data) ? data.data : []
-            let pagination = self.table.pagination
-            pagination.page = data.index
-            pagination.rowsPerPage = data.size
-            if (util.isNumber(data.records)) {
-              pagination.rowsNumber = data.records
-            } else {
-              let rowsNumber = data.index * data.size
-              if (self.table.rows.length !== data.size) {
-                pagination.rowsNumber = rowsNumber
-              } else {
-                pagination.rowsNumber = rowsNumber + 1
-              }
-            }
+        onSuccess(page, info) {
+          if (util.isObject(page)) {
+            self.table.rows = util.isArray(page.data) ? page.data : []
+            self.table.pagination = uix.pagination(self.table.pagination, page)
           }
+          self.table.visibles = uix.visibles(
+            self.table.visibles,
+            info?.visibles,
+            self.table.columns,
+          )
         },
       })
     },
@@ -421,28 +415,16 @@ export default {
      * SEARCH FILTER CLICK
      */
     on_search_filter_click() {
-      let filters = self.table.filters
-      if (!(util.isString(filters.method) && '' !== filters.method)) {
-        delete filters.method
-      }
-      if (!(util.isString(filters.path) && '' !== filters.path)) {
-        delete filters.path
-      }
-      if (!(util.isString(filters.bean) && '' !== filters.bean)) {
-        delete filters.bean
-      }
-      if (!(util.isString(filters.function) && '' !== filters.function)) {
-        delete filters.function
-      }
-      if (!(util.isString(filters.annotation) && '' !== filters.annotation)) {
-        delete filters.annotation
-      }
-      if (!(util.isString(filters.isPublic) && '' !== filters.isPublic)) {
-        delete filters.isPublic
-      }
-      if (!(util.isString(filters.isExclude) && '' !== filters.isExclude)) {
-        delete filters.isExclude
-      }
+      self.table.filters = uix.filters(
+        self.table.filters,
+        'method',
+        'path',
+        'bean',
+        'function',
+        'annotation',
+        'isPublic',
+        'isExclude',
+      )
       self.do_request({
         pagination: self.table.pagination,
       })

@@ -4,6 +4,7 @@
     class="table-sticky-header q-ma-sm"
     :rows="table.rows"
     :columns="table.columns"
+    :visible-columns="table.visibles"
     :row-key="'name'"
     :loading="table.loading"
     :selection="'single'"
@@ -127,6 +128,7 @@ export default {
       table: ref({
         rows: [],
         columns: [],
+        visibles: [],
         loading: false,
         clearing: {},
         pagination: {
@@ -270,6 +272,11 @@ export default {
               row.is_group = false
             }
           }
+          self.table.visibles = uix.visibles(
+            self.table.visibles,
+            info?.visibles,
+            self.table.columns,
+          )
         },
       })
     },

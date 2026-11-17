@@ -189,5 +189,54 @@ const uix = {
       }
     },
   },
+
+  /*
+   * PAGINATION
+   */
+  pagination: (reference, page) => {
+    reference.page = page.index
+    reference.rowsPerPage = page.size
+    if (util.isNumber(page.records)) {
+      reference.rowsNumber = page.records
+    } else {
+      let data = util.isArray(page.data) ? page.data : []
+      let rowsNumber = page.index * page.size
+      if (data.length !== page.size) {
+        reference.rowsNumber = rowsNumber
+      } else {
+        reference.rowsNumber = rowsNumber + 1
+      }
+    }
+    return reference
+  },
+
+  /*
+   * VISIBLES
+   */
+  visibles: (reference, visibles, columns, key) => {
+    if (util.isArray(visibles)) {
+      reference = visibles
+    } else {
+      reference = []
+      for (const c of columns) {
+        reference.push(c[key || 'name'])
+      }
+    }
+    return reference
+  },
+
+  /*
+   * FILTERS
+   */
+  filters: (reference, ...names) => {
+    if (util.isArray(names)) {
+      for (const name of names) {
+        if (!(util.isString(reference[name]) && '' !== reference[name])) {
+          delete reference[name]
+        }
+      }
+    }
+    return reference
+  },
 }
 export { uix }

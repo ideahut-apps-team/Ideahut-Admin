@@ -583,19 +583,8 @@ export default {
         onSuccess(page) {
           let pagination = self.pagination[groupId]
           if (util.isObject(page)) {
+            pagination = uix.pagination(pagination, page)
             pagination.triggers = util.isArray(page.data) ? page.data : []
-            pagination.page = page.index
-            pagination.rowsPerPage = page.size
-            if (util.isNumber(page.records)) {
-              pagination.rowsNumber = page.records
-            } else {
-              let rowsNumber = page.index * page.size
-              if (pagination.triggers.length !== page.size) {
-                pagination.rowsNumber = rowsNumber
-              } else {
-                pagination.rowsNumber = rowsNumber + 1
-              }
-            }
           }
         },
       })

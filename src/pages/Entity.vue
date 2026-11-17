@@ -65,6 +65,7 @@
         :title="$t('label.entity')"
         :rows="entity.rows"
         :columns="columns.entity"
+        :visible-columns="entity.visibles"
         :loading="entity.loading"
         :selection="'single'"
         :dense="$q.screen.lt.md"
@@ -694,6 +695,7 @@ export default {
         filter: null,
       }),
       entity: ref({
+        visibles: [],
         rows: [],
         filters: {},
         pagination: {
@@ -986,23 +988,16 @@ export default {
         onFinish() {
           self.entity.loading = false
         },
-        onSuccess(data) {
-          if (util.isObject(data)) {
-            self.entity.rows = util.isArray(data.data) ? data.data : []
-            let pagination = self.entity.pagination
-            pagination.page = data.index
-            pagination.rowsPerPage = data.size
-            if (util.isNumber(data.records)) {
-              pagination.rowsNumber = data.records
-            } else {
-              let rowsNumber = data.index * data.size
-              if (self.entity.rows.length !== data.size) {
-                pagination.rowsNumber = rowsNumber
-              } else {
-                pagination.rowsNumber = rowsNumber + 1
-              }
-            }
+        onSuccess(page, info) {
+          if (util.isObject(page)) {
+            self.entity.rows = util.isArray(page.data) ? page.data : []
+            self.entity.pagination = uix.pagination(self.entity.pagination, page)
           }
+          self.entity.visibles = uix.visibles(
+            self.entity.visibles,
+            info?.visibles,
+            self.columns.entity,
+          )
         },
       })
     },
@@ -1131,6 +1126,7 @@ export default {
      * ENTITY FILTER CLICK
      */
     on_entity_filter_click() {
+      /*
       let filters = self.entity.filters
       if (!(util.isString(filters.type) && '' !== filters.type)) {
         delete filters.type
@@ -1153,6 +1149,17 @@ export default {
       if (!(util.isString(filters['id.type']) && '' !== filters['id.type'])) {
         delete filters['id.type']
       }
+      */
+      self.entity.filters = uix.filters(
+        self.entity.filters,
+        'type',
+        'table',
+        'isSoftDelete',
+        'isAuditEntity',
+        'isAuditEnabled',
+        'isApiExclude',
+        'id.type',
+      )
       self.get_entities({
         pagination: self.entity.pagination,
       })

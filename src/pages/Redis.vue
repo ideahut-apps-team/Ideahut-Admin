@@ -304,14 +304,7 @@ export default {
               self.table.flushing.db[row.name] = false
             }
           }
-          if (util.isArray(info?.visibles)) {
-            self.visibles = info.visibles
-          } else {
-            self.visibles = []
-            for (const c of self.columns) {
-              self.visibles.push(c.name)
-            }
-          }
+          self.visibles = uix.visibles(self.visibles, info?.visibles, self.columns)
         },
       })
     },

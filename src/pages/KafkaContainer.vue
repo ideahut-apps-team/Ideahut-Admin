@@ -345,22 +345,10 @@ export default {
         onFinish() {
           self.table.loading = false
         },
-        onSuccess(data) {
-          if (util.isObject(data)) {
-            self.table.rows = util.isArray(data.data) ? data.data : []
-            let pagination = self.table.pagination
-            pagination.page = data.index
-            pagination.rowsPerPage = data.size
-            if (util.isNumber(data.records)) {
-              pagination.rowsNumber = data.records
-            } else {
-              let rowsNumber = data.index * data.size
-              if (self.table.rows.length !== data.size) {
-                pagination.rowsNumber = rowsNumber
-              } else {
-                pagination.rowsNumber = rowsNumber + 1
-              }
-            }
+        onSuccess(page) {
+          if (util.isObject(page)) {
+            self.table.rows = util.isArray(page.data) ? page.data : []
+            self.table.pagination = uix.pagination(self.table.pagination, page)
           }
         },
       })

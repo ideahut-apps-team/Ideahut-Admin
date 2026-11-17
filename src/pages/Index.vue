@@ -612,36 +612,17 @@ export default {
         onFinish() {
           self.bean.loading = false
         },
-        onSuccess(data, info) {
-          if (util.isObject(data)) {
-            self.bean.rows = util.isArray(data.data) ? data.data : []
+        onSuccess(page, info) {
+          if (util.isObject(page)) {
+            self.bean.rows = util.isArray(page?.data) ? page.data : []
             for (const row of self.bean.rows) {
               row.isProxy = row.isProxy + ''
               row.isReconfigure = row.isReconfigure + ''
               row.isReloadable = row.isReloadable + ''
             }
-            let pagination = self.bean.pagination
-            pagination.page = data.index
-            pagination.rowsPerPage = data.size
-            if (util.isNumber(data.records)) {
-              pagination.rowsNumber = data.records
-            } else {
-              let rowsNumber = data.index * data.size
-              if (self.bean.rows.length !== data.size) {
-                pagination.rowsNumber = rowsNumber
-              } else {
-                pagination.rowsNumber = rowsNumber + 1
-              }
-            }
+            self.bean.pagination = uix.pagination(self.bean.pagination, page)
           }
-          if (util.isArray(info.visibles)) {
-            self.bean.visibles = info.visibles
-          } else {
-            self.bean.visibles = []
-            for (const c of self.bean.columns) {
-              self.bean.visibles.push(c.name)
-            }
-          }
+          self.bean.visibles = uix.visibles(self.bean.visibles, info?.visibles, self.bean.columns)
         },
       })
     },
@@ -679,22 +660,14 @@ export default {
      * BEAN FILTER CLICK
      */
     on_bean_filter_click() {
-      let filters = self.bean.filters
-      if (!(util.isString(filters.beanName) && '' !== filters.beanName)) {
-        delete filters.beanName
-      }
-      if (!(util.isString(filters.className) && '' !== filters.className)) {
-        delete filters.className
-      }
-      if (!(util.isString(filters.isProxy) && '' !== filters.isProxy)) {
-        delete filters.isProxy
-      }
-      if (!(util.isString(filters.isReloadable) && '' !== filters.isReloadable)) {
-        delete filters.isReloadable
-      }
-      if (!(util.isString(filters.isReconfigure) && '' !== filters.isReconfigure)) {
-        delete filters.isReconfigure
-      }
+      self.bean.filters = uix.filters(
+        self.bean.filters,
+        'beanName',
+        'className',
+        'isProxy',
+        'isReloadable',
+        'isReconfigure',
+      )
       self.get_beans({
         pagination: self.bean.pagination,
       })
